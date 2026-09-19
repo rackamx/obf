@@ -17,6 +17,7 @@ typedef struct {
 	char *orig; /**< Source name. */
 	char *neww; /**< Hoisted name. */
 } MapEnt;
+
 /**
  * @brief Renaming vector.
  */
@@ -25,6 +26,7 @@ typedef struct {
 	size_t len;    /**< Item count. */
 	size_t cap;    /**< Allocated slots. */
 } MapVec;
+
 /**
  * @brief Stack of renaming scopes.
  */
@@ -33,6 +35,7 @@ typedef struct {
 	size_t len;	/**< Depth. */
 	size_t cap;	/**< Allocated slots. */
 } ScopeStack;
+
 /**
  * @brief Declaration hoister and renamer.
  */
@@ -45,6 +48,7 @@ typedef struct {
 	int temp_counter;     /**< Init-temporary counter. */
 	StrVec *typedefs;     /**< Known typedef names (borrowed). */
 } Hoister;
+
 /**
  * @brief Initialise a hoister with a base scope.
  *
@@ -69,6 +73,7 @@ void hoister_init(Hoister *h, StrVec *td)
 	h->slen = 1;
 	h->scap = 1;
 }
+
 /**
  * @brief Push a renaming scope.
  *
@@ -88,6 +93,7 @@ void h_push(Hoister *h)
 	h->stack[h->slen].cap = 0;
 	h->slen++;
 }
+
 /**
  * @brief Pop the innermost renaming scope.
  *
@@ -98,6 +104,7 @@ void h_pop(Hoister *h)
 	if (h->slen > 0)
 		h->slen--;
 }
+
 /**
  * @brief Derive a unique name from a base.
  *
@@ -114,6 +121,7 @@ char *h_fresh(Hoister *h, const char *base)
 	snprintf(buf, sizeof(buf), "%s__h%d", base, h->counter);
 	return xstrdup(buf);
 }
+
 /**
  * @brief Test whether a name was already hoisted.
  *
@@ -126,6 +134,7 @@ int h_in_hoisted(Hoister *h, const char *s)
 {
 	return sv_contains(&h->hoisted_names, s);
 }
+
 /**
  * @brief Test whether a name is bound in any scope.
  *
@@ -146,6 +155,7 @@ int h_shadowed(Hoister *h, const char *s)
 
 	return 0;
 }
+
 /**
  * @brief Resolve the innermost renaming of a name.
  *
@@ -166,6 +176,7 @@ const char *h_lookup(Hoister *h, const char *s)
 
 	return s;
 }
+
 /**
  * @brief Hoist a variable, keeping static initializers inline.
  *
@@ -232,6 +243,7 @@ char *h_declare(Hoister *h, const char *orig, const char *type_str,
 	sv_push(&h->hoisted, b.data);
 	return neww;
 }
+
 /**
  * @brief Rename declared identifiers, skipping fields/tags.
  *
@@ -274,6 +286,7 @@ char *rewrite_expr(Hoister *h, const char *expr)
 	tv_free(&v);
 	return b.data;
 }
+
 /**
  * @brief Test for a whole-word occurrence.
  *
@@ -298,6 +311,7 @@ int contains_word(const char *s, const char *w)
 
 	return 0;
 }
+
 /**
  * @brief Drop 'const' words and collapse whitespace.
  *
@@ -322,6 +336,7 @@ char *strip_const_word(const char *s)
 			i += 5;
 			continue;
 		}
+
 		/* copy one char? better copy token-wise: copy char */
 		/* collapse multiple spaces */
 		if (isspace((unsigned char)s[i])) {
@@ -336,6 +351,7 @@ char *strip_const_word(const char *s)
 		sb_putc(&b, s[i]);
 		i++;
 	}
+
 	/* trim */
 	while (b.len && b.data[b.len - 1] == ' ')
 		b.data[--b.len] = '\0';
@@ -346,6 +362,7 @@ char *strip_const_word(const char *s)
 
 	return b.data;
 }
+
 /**
  * @brief Test for struct/union types.
  *
@@ -357,6 +374,7 @@ int is_struct_type(const char *t)
 {
 	return contains_word(t, "struct") || contains_word(t, "union");
 }
+
 /* c string literal length (bytes) +1 for NUL; input like "\"hi\"" */
 /**
  * @brief Measure a string literal with NUL in bytes.
@@ -406,6 +424,7 @@ int c_str_lit_size(const char *lit)
 
 	return cnt + 1;
 }
+
 /**
  * @brief Size the first '[]' pair.
  *
@@ -453,6 +472,7 @@ char *replace_first_empty_brackets(const char *suffix, int size)
 	sb_puts(&b, q);
 	return b.data;
 }
+
 /**
  * @brief Deduce '[]' from string or '{...}' initializers.
  *
@@ -464,6 +484,7 @@ char *replace_first_empty_brackets(const char *suffix, int size)
 char *fix_array_suffix(const char *suffix, const char *init_text)
 {
 	char *s = xstrdup(suffix ? suffix : "");
+
 	/* trim */
 	/* check contains [] ignoring spaces */
 	{
@@ -507,6 +528,7 @@ char *fix_array_suffix(const char *suffix, const char *init_text)
 		const char *inner = it + 1;
 		size_t inlen = (il >= 2 && it[il - 1] == '}') ? il - 2 : il - 1;
 		char *inner_s = xstrndup(inner, inlen);
+
 		/* check blank */
 		int blank = 1;
 
@@ -551,9 +573,11 @@ char *fix_array_suffix(const char *suffix, const char *init_text)
 		free(s);
 	return res ? res : xstrdup(suffix);
 }
+
 /* hoist: returns NodeVec (owned Nodes). Frees/transforms input? We transform in
  * place and produce list. */
 NodeVec hoist_node(Hoister *h, Node *nd);
+
 /**
  * @brief Parse a declaration fragment such as for-init.
  *
@@ -579,11 +603,13 @@ Node *parse_decl_string(Hoister *h, const char *s)
 	p.pos = 0;
 	p.typedefs = h->typedefs;
 	Node *n = parse_declaration(&p);
+
 	/* leak tv texts? parse_declaration copied needed strings via
 	 * toks_to_str (which copies). Free tv. */
 	tv_free(&tv);
 	return n;
 }
+
 /**
  * @brief Lower an array initializer to runtime copies.
  *
@@ -687,6 +713,7 @@ NodeVec make_array_init(Hoister *h, const char *new_name, const char *init_text)
 
 	return v;
 }
+
 /**
  * @brief Append every node of one vector to another.
  *
@@ -698,6 +725,7 @@ void nv_extend(NodeVec *dst, NodeVec *src)
 	for (size_t i = 0; i < src->len; i++)
 		nv_push(dst, src->items[i]);
 }
+
 /**
  * @brief Hoist declarations and rewrite identifiers.
  *
@@ -814,6 +842,7 @@ NodeVec hoist_node(Hoister *h, Node *nd)
 				} else {
 					/* scalar, strip single braces {val} */
 					char *it = xstrdup(init_rw);
+
 					/* trim */
 					char *s = it;
 
@@ -894,6 +923,7 @@ NodeVec hoist_node(Hoister *h, Node *nd)
 		tv_free(&tv);
 	} else if (tp == N_EXPR) {
 		char *txt = xstrdup(nd->expr_text);
+
 		/* strip trailing ; */
 		size_t L = strlen(txt);
 
@@ -1182,6 +1212,7 @@ NodeVec hoist_node(Hoister *h, Node *nd)
 
 	return out;
 }
+
 /* ---------------- lowerer ---------------- */
 /**
  * @brief Basic block terminators.
@@ -1193,6 +1224,7 @@ enum {
 	TERM_RETURN,   /**< Function return. */
 	TERM_EXIT      /**< Fall off the end. */
 };
+
 /**
  * @brief Basic block.
  */
@@ -1205,6 +1237,7 @@ typedef struct {
 	char *ret_expr;	  /**< Return value, or NULL. */
 	char *goto_label; /**< Pending label, resolved later. */
 } Block;
+
 /**
  * @brief Basic block vector.
  */
@@ -1213,6 +1246,7 @@ typedef struct {
 	size_t len;   /**< Item count. */
 	size_t cap;   /**< Allocated slots. */
 } BlockVec;
+
 /**
  * @brief User label binding.
  */
@@ -1220,6 +1254,7 @@ typedef struct {
 	char *name; /**< Label name. */
 	int bid;    /**< Target block. */
 } LabelEnt;
+
 /**
  * @brief Label binding vector.
  */
@@ -1228,6 +1263,7 @@ typedef struct {
 	size_t len;	 /**< Item count. */
 	size_t cap;	 /**< Allocated slots. */
 } LabelVec;
+
 /**
  * @brief Break/continue targets.
  */
@@ -1237,6 +1273,7 @@ typedef struct {
 	int has_cont;  /**< Continue is valid. */
 	int cont;      /**< Continue target. */
 } LoopCtx;
+
 /**
  * @brief AST-to-blocks lowerer.
  */
@@ -1250,6 +1287,7 @@ typedef struct {
 	size_t llen;	 /**< Loop depth. */
 	size_t lcap;	 /**< Loop capacity. */
 } Lowerer;
+
 /**
  * @brief Initialise a lowerer bound to a hoister.
  *
@@ -1269,6 +1307,7 @@ void lower_init(Lowerer *L, Hoister *h)
 	L->llen = 0;
 	L->lcap = 0;
 }
+
 /**
  * @brief Create an empty basic block.
  *
@@ -1296,6 +1335,7 @@ int lower_new_block(Lowerer *L)
 	b->goto_label = NULL;
 	return (int)L->blocks.len++;
 }
+
 /**
  * @brief Append straight-line code to the current block.
  *
@@ -1316,6 +1356,7 @@ void lower_emit(Lowerer *L, const char *code)
 	while (n && isspace((unsigned char)code[n - 1]))
 		n--;
 	char *s = xstrndup(code, n);
+
 	/* ensure ends with ; or } */
 	size_t L2 = strlen(s);
 	int ends = (L2 > 0 && (s[L2 - 1] == ';' || s[L2 - 1] == '}'));
@@ -1333,6 +1374,7 @@ void lower_emit(Lowerer *L, const char *code)
 
 		sv_push(&b->stmts, s);
 }
+
 /**
  * @brief Test whether the current block is terminated.
  *
@@ -1344,6 +1386,7 @@ int lower_cur_term(Lowerer *L)
 {
 	return L->blocks.items[L->cur].term != TERM_NONE;
 }
+
 /**
  * @brief Push break/continue targets for a loop or switch.
  *
@@ -1367,6 +1410,7 @@ void loop_push(Lowerer *L, int hb, int b, int hc, int c)
 	L->loops[L->llen].cont = c;
 	L->llen++;
 }
+
 /**
  * @brief Pop the innermost loop context.
  *
@@ -1377,6 +1421,7 @@ void loop_pop(Lowerer *L)
 	if (L->llen)
 		L->llen--;
 }
+
 /**
  * @brief Resolve a user label to its block.
  *
@@ -1392,6 +1437,7 @@ int find_label(Lowerer *L, const char *n)
 			return L->labels.items[i].bid;
 	return -1;
 }
+
 /**
  * @brief Bind a user label to a block.
  *
@@ -1422,6 +1468,7 @@ void set_label(Lowerer *L, const char *n, int bid)
 }
 
 void lower_stmt(Lowerer *L, Node *nd);
+
 /**
  * @brief Switch case target.
  */
@@ -1430,6 +1477,7 @@ typedef struct {
 	int is_def; /**< Non-zero for default. */
 	int blk;    /**< Target block. */
 } CaseEnt;
+
 /**
  * @brief Switch case vector.
  */
@@ -1438,6 +1486,7 @@ typedef struct {
 	size_t len;	/**< Item count. */
 	size_t cap;	/**< Allocated slots. */
 } CaseVec;
+
 /**
  * @brief Record a switch case target.
  *
@@ -1460,6 +1509,7 @@ void casevec_push(CaseVec *v, char *e, int isd, int b)
 	v->items[v->len].blk = b;
 	v->len++;
 }
+
 /**
  * @brief Lower a switch body, recording case targets.
  *
@@ -1525,6 +1575,7 @@ void sw_walk(Lowerer *L, Node *nd, CaseVec *cases)
 		lower_stmt(L, nd);
 	}
 }
+
 /**
  * @brief Lower a switch with an equality dispatch chain.
  *
@@ -1572,6 +1623,7 @@ void lower_switch(Lowerer *L, Node *nd)
 		L->blocks.items[L->cur].target = end_b;
 		L->cur = lower_new_block(L);
 	}
+
 	/* build dispatch chain */
 	int def_tgt = end_b;
 
@@ -1580,6 +1632,7 @@ void lower_switch(Lowerer *L, Node *nd)
 			def_tgt = cases.items[i].blk;
 			break;
 		}
+
 	/* collect non-default in order */
 	int *nondef_idx = NULL;
 	size_t nn = 0, nc = 0;
@@ -1619,6 +1672,7 @@ void lower_switch(Lowerer *L, Node *nd)
 			}
 
 			int false_tgt = (next_test >= 0) ? next_test : def_tgt;
+
 			/* cond: (tmp) == (cexpr) */
 			StrBuf cb;
 
@@ -1646,6 +1700,7 @@ void lower_switch(Lowerer *L, Node *nd)
 	loop_pop(L);
 	L->cur = end_b;
 }
+
 /**
  * @brief Lower one AST node into basic blocks.
  *
@@ -1775,6 +1830,7 @@ void lower_stmt(Lowerer *L, Node *nd)
 			L->blocks.items[L->cur].target = incr_b;
 			L->cur = lower_new_block(L);
 		}
+
 		/* incr block */
 		if (nd->incr && nd->incr[0]) {
 			const char *p = nd->incr;
@@ -1917,6 +1973,7 @@ void lower_stmt(Lowerer *L, Node *nd)
 		/* should be hoisted; ignore */
 	}
 }
+
 /* lower entry: returns entry id */
 /**
  * @brief Lower a body and finalize the block graph.
@@ -1939,6 +1996,7 @@ int lower_run(Lowerer *L, Node *body)
 	for (size_t i = 0; i < L->blocks.len; i++)
 		if (L->blocks.items[i].term == TERM_NONE)
 			L->blocks.items[i].term = TERM_EXIT;
+
 	/* resolve label gotos */
 	for (size_t i = 0; i < L->blocks.len; i++) {
 		Block *b = &L->blocks.items[i];
@@ -1959,6 +2017,7 @@ int lower_run(Lowerer *L, Node *body)
 			b->goto_label = NULL;
 		}
 	}
+
 	/* BFS reachable */
 	char *vis = (char *)xmalloc(L->blocks.len ? L->blocks.len : 1);
 
@@ -1986,6 +2045,7 @@ int lower_run(Lowerer *L, Node *body)
 			stack[sp++] = b->target2;
 		}
 	}
+
 	/* keep only reachable */
 	int *remap = (int *)xmalloc((L->blocks.len ? L->blocks.len : 1) *
 				    sizeof(int));
@@ -2027,6 +2087,7 @@ int lower_run(Lowerer *L, Node *body)
 			d->target2 = s->target2;
 		}
 	}
+
 	/* free old */
 	for (size_t i = 0; i < L->blocks.len; i++) {
 		for (size_t k = 0; k < L->blocks.items[i].stmts.len; k++)
@@ -2071,6 +2132,7 @@ int lower_run(Lowerer *L, Node *body)
 	free(order);
 	return L->entry;
 }
+
 /* ---------------- emission ---------------- */
 /**
  * @brief Pick a dispatcher name free of collisions.
@@ -2093,6 +2155,7 @@ char *sanitize_state(Hoister *h)
 		i++;
 	}
 }
+
 /**
  * @brief Render a flattened function with delta transitions.
  *
@@ -2213,6 +2276,7 @@ char *emit_function(Token *hdr, size_t hn, Hoister *h, Lowerer *L,
 	sb_puts(&o, "    }\n  }\n}\n");
 	return o.data;
 }
+
 /* ---------------- flatten one function ---------------- */
 /**
  * @brief Parse, hoist, lower and emit one function.
@@ -2290,6 +2354,7 @@ char *flatten_function(TokVec *header, TokVec *body, StrVec *global_td)
 	tv_free(&inner);
 	return code;
 }
+
 /**
  * @brief Record typedef names from a declaration.
  *
@@ -2317,6 +2382,7 @@ void collect_typedefs_from_text(const char *txt, StrVec *out)
 
 	tv_free(&tv);
 }
+
 /**
  * @brief Flatten every function of a program.
  *
@@ -2362,6 +2428,7 @@ char *flatten_program(const char *src)
 
 				if (it->kind == TL_FUNC) {
 					char *flat = NULL;
+
 					/* try flatten; on failure pass through
 					 */
 					/* no exceptions in C; assume success */
@@ -2393,6 +2460,7 @@ char *flatten_program(const char *src)
 					sb_putc(&out, '\n');
 				}
 			}
+
 			/* leak tl for brevity */
 		}
 	}

@@ -13,6 +13,7 @@ void *xrealloc(void *p, size_t n);
 char *xstrdup(const char *s);
 
 char *xstrndup(const char *s, size_t n);
+
 /**
  * @brief Growable string buffer.
  */
@@ -31,6 +32,7 @@ void sb_putn(StrBuf *b, const char *s, size_t n);
 void sb_puts(StrBuf *b, const char *s);
 
 void sb_putc(StrBuf *b, char c);
+
 /* vector of strings (owned) */
 /**
  * @brief Growable vector of owned strings.

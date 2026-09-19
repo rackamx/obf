@@ -26,6 +26,7 @@ void *xmalloc(size_t n)
 
 	return p;
 }
+
 /**
  * @brief Resize a memory block, aborting on failure.
  *
@@ -45,6 +46,7 @@ void *xrealloc(void *p, size_t n)
 
 	return q;
 }
+
 /**
  * @brief Duplicate a string.
  *
@@ -62,6 +64,7 @@ char *xstrdup(const char *s)
 	memcpy(p, s, n);
 	return p;
 }
+
 /**
  * @brief Duplicate a counted prefix of a string plus NUL.
  *
@@ -78,6 +81,7 @@ char *xstrndup(const char *s, size_t n)
 	p[n] = '\0';
 	return p;
 }
+
 /* growable string buffer */
 /**
  * @brief Initialise an empty string buffer.
@@ -91,6 +95,7 @@ void sb_init(StrBuf *b)
 	b->len = 0;
 	b->cap = 256;
 }
+
 /**
  * @brief Ensure room for extra bytes.
  *
@@ -106,6 +111,7 @@ void sb_reserve(StrBuf *b, size_t extra)
 		b->cap = nc;
 	}
 }
+
 /**
  * @brief Append counted bytes to a buffer.
  *
@@ -120,6 +126,7 @@ void sb_putn(StrBuf *b, const char *s, size_t n)
 	b->len += n;
 	b->data[b->len] = '\0';
 }
+
 /**
  * @brief Append a NUL-terminated string; NULL-safe.
  *
@@ -131,6 +138,7 @@ void sb_puts(StrBuf *b, const char *s)
 	if (s)
 		sb_putn(b, s, strlen(s));
 }
+
 /**
  * @brief Append a single character.
  *
@@ -143,6 +151,7 @@ void sb_putc(StrBuf *b, char c)
 	b->data[b->len++] = c;
 	b->data[b->len] = '\0';
 }
+
 /* vector of strings (owned) */
 /**
  * @brief Initialise an empty string vector.
@@ -155,6 +164,7 @@ void sv_init(StrVec *v)
 	v->len = 0;
 	v->cap = 0;
 }
+
 /**
  * @brief Append a string, taking ownership of the pointer.
  *
@@ -172,6 +182,7 @@ void sv_push(StrVec *v, char *s)
 
 	v->items[v->len++] = s;
 }
+
 /**
  * @brief Test membership by string equality.
  *
@@ -187,6 +198,7 @@ int sv_contains(StrVec *v, const char *s)
 			return 1;
 	return 0;
 }
+
 /**
  * @brief Compare two strings for equality.
  *

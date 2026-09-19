@@ -42,6 +42,7 @@ char *read_all(FILE *f)
 		sb_putn(&b, tmp, n);
 	return b.data;
 }
+
 /**
  * @brief Flatten a C program to a dispatcher program.
  *

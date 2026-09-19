@@ -45,6 +45,7 @@ int is_keyword(const char *w)
 			return 1;
 	return 0;
 }
+
 /**
  * @brief Test whether a word may open a declaration.
  *
@@ -59,6 +60,7 @@ int is_type_kw(const char *w)
 			return 1;
 	return 0;
 }
+
 /* ---------------- tokens ---------------- */
 /**
  * @brief Initialise an empty token vector.
@@ -71,6 +73,7 @@ void tv_init(TokVec *v)
 	v->len = 0;
 	v->cap = 0;
 }
+
 /**
  * @brief Append a token, taking ownership of the text.
  *
@@ -91,6 +94,7 @@ void tv_push(TokVec *v, int kind, char *text)
 	v->items[v->len].text = text;
 	v->len++;
 }
+
 /**
  * @brief Release a token vector and all its texts.
  *
@@ -104,6 +108,7 @@ void tv_free(TokVec *v)
 	v->items = NULL;
 	v->len = v->cap = 0;
 }
+
 /* strip comments -> spaces (same length, preserves strings) */
 /**
  * @brief Blank out comments, preserving strings and length.
@@ -190,6 +195,7 @@ char *strip_comments(const char *src)
 	out[n] = '\0';
 	return out;
 }
+
 /**
  * @brief Test for identifier-first characters.
  *
@@ -201,6 +207,7 @@ int is_ident_start(char c)
 {
 	return isalpha((unsigned char)c) || c == '_' || c == '$';
 }
+
 /**
  * @brief Test for identifier characters.
  *
@@ -212,6 +219,7 @@ int is_ident_char(char c)
 {
 	return isalnum((unsigned char)c) || c == '_' || c == '$';
 }
+
 /**
  * @brief Split C source into a token stream.
  *
@@ -330,6 +338,7 @@ TokVec tokenize(const char *code)
 
 	return v;
 }
+
 /**
  * @brief Join tokens with single spaces.
  *
@@ -351,6 +360,7 @@ char *toks_to_str(Token *toks, size_t n)
 
 	return b.data;
 }
+
 /**
  * @brief Join a token vector with single spaces.
  *
@@ -362,6 +372,7 @@ char *tokvec_to_str(TokVec *v)
 {
 	return toks_to_str(v->items, v->len);
 }
+
 /* ---------------- preproc split ---------------- */
 /**
  * @brief Append a source segment.
@@ -383,6 +394,7 @@ void segvec_push(SegVec *v, int is_pre, char *t)
 	v->items[v->len].text = t;
 	v->len++;
 }
+
 /**
  * @brief Split source into code/preprocessor segments.
  *
@@ -407,6 +419,7 @@ SegVec split_preproc(const char *src)
 		const char *nl = strchr(p, '\n');
 		size_t ll = nl ? (size_t)(nl - p) : strlen(p);
 		char *line = xstrndup(p, ll);
+
 		/* lstrip check */
 		const char *q = line;
 
@@ -442,6 +455,7 @@ SegVec split_preproc(const char *src)
 		free(cur.data);
 	return v;
 }
+
 /* ---------------- toplevel ---------------- */
 /**
  * @brief Append a toplevel item.
@@ -460,6 +474,7 @@ void tlv_push(TLVect *v, TLItem it)
 
 	v->items[v->len++] = it;
 }
+
 /**
  * @brief Heuristic function-definition header test.
  *
@@ -533,6 +548,7 @@ const char *is_func_header(Token *h, size_t n)
 
 	return NULL;
 }
+
 /**
  * @brief Split code into function and other declarations.
  *
@@ -703,6 +719,7 @@ TLVect extract_toplevel(const char *code)
 
 		if (any) {
 			char *txt = toks_to_str(toks.items + cur, n - cur);
+
 			/* check non-blank */
 			int blank = 1;
 
@@ -732,6 +749,7 @@ TLVect extract_toplevel(const char *code)
 	tv_free(&toks);
 	return out;
 }
+
 /* ---------------- AST ---------------- */
 /**
  * @brief Allocate a zeroed AST node.
@@ -748,6 +766,7 @@ Node *node_new(int t)
 	n->type = t;
 	return n;
 }
+
 /**
  * @brief Initialise an empty node vector.
  *
@@ -759,6 +778,7 @@ void nv_init(NodeVec *v)
 	v->len = 0;
 	v->cap = 0;
 }
+
 /**
  * @brief Append a node.
  *
@@ -776,6 +796,7 @@ void nv_push(NodeVec *v, Node *n)
 
 	v->items[v->len++] = n;
 }
+
 /**
  * @brief Append a declarator entry.
  *
@@ -793,6 +814,7 @@ void dv_push(DeclVec *v, DeclEnt e)
 
 	v->items[v->len++] = e;
 }
+
 /* parser */
 /**
  * @brief Look ahead without consuming input.
@@ -808,6 +830,7 @@ Token *p_peek(Parser *p, size_t k)
 
 	return q < p->n ? &p->toks[q] : NULL;
 }
+
 /**
  * @brief Read ahead token text.
  *
@@ -822,6 +845,7 @@ const char *p_peekt(Parser *p, size_t k)
 
 	return t ? t->text : NULL;
 }
+
 /**
  * @brief Consume and return the current token.
  *
@@ -833,6 +857,7 @@ Token *p_next(Parser *p)
 {
 	return p->pos < p->n ? &p->toks[p->pos++] : NULL;
 }
+
 /**
  * @brief Test for end of input.
  *
@@ -844,6 +869,7 @@ int p_eof(Parser *p)
 {
 	return p->pos >= p->n;
 }
+
 /**
  * @brief Consume the current token on text match.
  *
@@ -860,6 +886,7 @@ int p_expect(Parser *p, const char *t)
 		return 0;
 	return 1;
 }
+
 /**
  * @brief Test whether a word is a known typedef name.
  *
@@ -875,6 +902,7 @@ int parser_is_typedef_name(Parser *p, const char *w)
 			return 1;
 	return 0;
 }
+
 /**
  * @brief Heuristic declaration test at the cursor.
  *
@@ -899,12 +927,14 @@ int looks_like_decl(Parser *p)
 		return 1;
 	return 0;
 }
+
 /* forward decls */
 Node *parse_statement(Parser *p);
 
 Node *parse_declaration(Parser *p);
 
 TokVec capture_until_semi(Parser *p);
+
 /**
  * @brief Collect tokens up to ';' at nesting depth 0.
  *
@@ -951,6 +981,7 @@ TokVec capture_until_semi(Parser *p)
 
 	return v;
 }
+
 /* decl name helpers */
 /**
  * @brief Find the declared name in declarator tokens.
@@ -1018,6 +1049,7 @@ const char *extract_decl_name(Token *toks, size_t n)
 	free(cs);
 	return res;
 }
+
 /**
  * @brief Collect trailing '[...]' groups after a name.
  *
@@ -1101,6 +1133,7 @@ char *extract_decl_suffix(Token *toks, size_t n, const char *name)
 		}
 
 		char *gs = g.data;
+
 		/* trim leading space */
 		char *tgs = gs;
 
@@ -1112,10 +1145,12 @@ char *extract_decl_suffix(Token *toks, size_t n, const char *name)
 		first = 0;
 		free(gs);
 	}
+
 	/* normalize: remove spaces? keep as is; fix_array_suffix handles spaces
 	 */
 	return b.data;
 }
+
 /**
  * @brief Count pointer stars before a name.
  *
@@ -1155,6 +1190,7 @@ char *extract_decl_stars(Token *toks, size_t n, const char *name)
 
 	return b.data;
 }
+
 /**
  * @brief Parse a brace-delimited statement list.
  *
@@ -1193,6 +1229,7 @@ Node *parse_block_contents(Parser *p, int need_braces)
 
 	return b;
 }
+
 /**
  * @brief Capture inside already-opened parens.
  *
@@ -1229,6 +1266,7 @@ char *parse_paren_inner_str(Parser *p)
 	tv_free(&v);
 	return s;
 }
+
 /**
  * @brief Parse an if/else statement at the cursor.
  *
@@ -1257,6 +1295,7 @@ Node *parse_if(Parser *p)
 	n->else_b = el;
 	return n;
 }
+
 /**
  * @brief Parse a while statement at the cursor.
  *
@@ -1276,6 +1315,7 @@ Node *parse_while(Parser *p)
 	n->body = b;
 	return n;
 }
+
 /**
  * @brief Parse a for statement, detecting decl/expr init.
  *
@@ -1372,6 +1412,7 @@ Node *parse_for(Parser *p)
 	/* if init empty and we freed? careful: init_s freed only when empty */
 	return n;
 }
+
 /**
  * @brief Parse a do/while statement at the cursor.
  *
@@ -1407,6 +1448,7 @@ Node *parse_do(Parser *p)
 	n->wcond = cond;
 	return n;
 }
+
 /**
  * @brief Parse a switch statement at the cursor.
  *
@@ -1426,6 +1468,7 @@ Node *parse_switch(Parser *p)
 	n->sw_body = b;
 	return n;
 }
+
 /**
  * @brief Parse a case label marker.
  *
@@ -1467,6 +1510,7 @@ Node *parse_case(Parser *p)
 	n->case_expr = e;
 	return n;
 }
+
 /**
  * @brief Parse a default label marker.
  *
@@ -1483,6 +1527,7 @@ Node *parse_default(Parser *p)
 		p_next(p);
 	return node_new(N_DEFAULT);
 }
+
 /* declaration parsing */
 /**
  * @brief Parse a declaration up to ';'.
@@ -1532,11 +1577,13 @@ Node *parse_declaration(Parser *p)
 		p->pos = start;
 		return NULL;
 	}
+
 	/* body without trailing ; */
 	size_t bn = toks.len - 1;
 
 	if (bn == 0) { /* empty? */
 	}
+
 	/* split by top-level commas */
 	/* build chunks as TokVec array */
 	/**
@@ -1631,6 +1678,7 @@ Node *parse_declaration(Parser *p)
 		free(chunks);
 		return n;
 	}
+
 	/* find type_end in first chunk */
 	Token *first = chunks[0].t;
 	size_t fn = chunks[0].n;
@@ -1706,6 +1754,7 @@ Node *parse_declaration(Parser *p)
 	}
 
 	char *type_str = toks_to_str(first, type_end);
+
 	/* check novar: no declarator and single chunk */
 	if (chunks[0].n == type_end && cn == 1) {
 		char *txt = tokvec_to_str(&toks);
@@ -1723,6 +1772,7 @@ Node *parse_declaration(Parser *p)
 		free(chunks);
 		return n;
 	}
+
 	/* build decl chunks */
 	Node *nd = node_new(N_DECL);
 
@@ -1834,6 +1884,7 @@ Node *parse_declaration(Parser *p)
 	free(dcs);
 	return nd;
 }
+
 /**
  * @brief Parse one statement at the cursor.
  *
@@ -1938,6 +1989,7 @@ Node *parse_statement(Parser *p)
 		tv_free(&v);
 		/* trim */
 		Node *n = node_new(N_RETURN);
+
 		/* strip trailing spaces: toks_to_str already trimmed? keep as
 		 * is, trim */
 		while (*e && isspace((unsigned char)*e))

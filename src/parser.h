@@ -18,6 +18,7 @@ enum {
 	TOK_CHAR,      /**< Character literal. */
 	TOK_PUNCT      /**< Operator or punctuation. */
 };
+
 /**
  * @brief Lexical token.
  */
@@ -25,6 +26,7 @@ typedef struct {
 	int kind;   /**< Kind (TOK_*). */
 	char *text; /**< Spelling (owned). */
 } Token;
+
 /**
  * @brief Growable token vector.
  */
@@ -47,6 +49,7 @@ TokVec tokenize(const char *code);
 char *toks_to_str(Token *toks, size_t n);
 
 char *tokvec_to_str(TokVec *v);
+
 /**
  * @brief Source segment.
  */
@@ -54,6 +57,7 @@ typedef struct {
 	int is_preproc; /**< Non-zero for preprocessor lines. */
 	char *text;	/**< Segment text with newlines (owned). */
 } Seg;
+
 /**
  * @brief Source segment vector.
  */
@@ -64,6 +68,7 @@ typedef struct {
 } SegVec;
 
 SegVec split_preproc(const char *src);
+
 /**
  * @brief Toplevel declaration kinds.
  */
@@ -71,6 +76,7 @@ enum {
 	TL_FUNC = 0, /**< Function definition. */
 	TL_OTHER     /**< Any other toplevel text. */
 };
+
 /**
  * @brief Toplevel declaration.
  */
@@ -81,6 +87,7 @@ typedef struct {
 	TokVec body;   /**< Braced body tokens. */
 	char *name;    /**< Function name. */
 } TLItem;
+
 /**
  * @brief Toplevel item vector.
  */
@@ -91,6 +98,7 @@ typedef struct {
 } TLVect;
 
 TLVect extract_toplevel(const char *code);
+
 /**
  * @brief AST node types.
  */
@@ -115,6 +123,7 @@ enum {
 	N_DECL_NOVAR, /**< Declaration without declarator. */
 	N_TYPEDEF     /**< Typedef declaration. */
 };
+
 /**
  * @brief Single declarator.
  */
@@ -126,6 +135,7 @@ typedef struct DeclEnt {
 	char *stars;  /**< Pointer stars such as *. */
 	char *raw;    /**< Full declarator text. */
 } DeclEnt;
+
 /**
  * @brief Declarator vector.
  */
@@ -177,6 +187,7 @@ void nv_init(NodeVec *v);
 void nv_push(NodeVec *v, Node *n);
 
 void dv_push(DeclVec *v, DeclEnt e);
+
 /**
  * @brief Token cursor with typedef names.
  */
