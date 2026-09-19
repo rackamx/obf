@@ -1,0 +1,12 @@
+# Doxyfile for cflatten. Generate with: make doc (requires doxygen).
+PROJECT_NAME      = cflatten
+PROJECT_BRIEF     = "Control-flow flattening obfuscator for C"
+OUTPUT_DIRECTORY  = doc
+INPUT             = src
+FILE_PATTERNS     = *.c *.h
+RECURSIVE         = NO
+GENERATE_HTML     = YES
+GENERATE_LATEX    = NO
+EXTRACT_ALL       = YES
+WARN_IF_UNDOCUMENTED = YES
+QUIET             = YES

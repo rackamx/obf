@@ -1,0 +1,13 @@
+# build outputs
+/cflatten
+*.o
+/doc/
+
+# test artifacts (binaries have no extension; reference flats kept)
+tests/*_orig
+tests/*_flat
+tests/*_o2_orig
+tests/*_o2_flat
+tests/argv_orig
+tests/argv_flat
+tests/*.txt

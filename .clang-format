@@ -1,0 +1,34 @@
+# Linux kernel coding style approximation for clang-format.
+# The kernel's official .clang-format uses BasedOnStyle LLVM with 8-wide tabs,
+# 80-column limit and Linux brace wrapping. Unknown keys are warned-only
+# (see Makefile format target using --Wno-error=unknown).
+BasedOnStyle: LLVM
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: 'false'
+AlignConsecutiveDeclarations: 'false'
+AlignEscapedNewlines: Right
+AlignOperands: Align
+AlignTrailingComments: 'true'
+AllowAllArgumentsOnNextLine: 'true'
+AllowAllParametersOfDeclarationOnNextLine: 'true'
+AllowShortBlocksOnASingleLine: Empty
+AllowShortCaseLabelsOnASingleLine: 'false'
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: 'false'
+AlwaysBreakAfterReturnType: None
+AlwaysBreakBeforeMultilineStrings: 'true'
+BreakBeforeBraces: Linux
+BreakBeforeTernaryOperators: 'true'
+ColumnLimit: 80
+ContinuationIndentWidth: 8
+Cpp11BracedListStyle: 'true'
+DerivePointerAlignment: 'false'
+ExperimentalAutoDetectBinPacking: 'false'
+IndentCaseLabels: 'false'
+IndentWidth: 8
+MaxEmptyLinesToKeep: 1
+PointerAlignment: Right
+SpaceBeforeParens: ControlStatements
+TabWidth: 8
+UseTab: Always
