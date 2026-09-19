@@ -7,10 +7,8 @@
  */
 #ifndef CFLATTEN_FLATTEN_H
 #define CFLATTEN_FLATTEN_H
-
 #include "parser.h"
-
 char *flatten_function(TokVec *header, TokVec *body, StrVec *global_td);
-char *flatten_program(const char *src);
 
+char *flatten_program(const char *src);
 #endif /* CFLATTEN_FLATTEN_H */

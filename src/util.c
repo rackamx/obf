@@ -7,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 /* ---------------- utilities ---------------- */
 /**
  * @brief Allocate memory, aborting on failure.
@@ -19,10 +18,12 @@
 void *xmalloc(size_t n)
 {
 	void *p = malloc(n ? n : 1);
+
 	if (!p) {
 		fprintf(stderr, "out of memory\n");
 		exit(1);
 	}
+
 	return p;
 }
 /**
@@ -36,10 +37,12 @@ void *xmalloc(size_t n)
 void *xrealloc(void *p, size_t n)
 {
 	void *q = realloc(p, n ? n : 1);
+
 	if (!q) {
 		fprintf(stderr, "out of memory\n");
 		exit(1);
 	}
+
 	return q;
 }
 /**
@@ -55,6 +58,7 @@ char *xstrdup(const char *s)
 		return NULL;
 	size_t n = strlen(s) + 1;
 	char *p = (char *)xmalloc(n);
+
 	memcpy(p, s, n);
 	return p;
 }
@@ -69,11 +73,11 @@ char *xstrdup(const char *s)
 char *xstrndup(const char *s, size_t n)
 {
 	char *p = (char *)xmalloc(n + 1);
+
 	memcpy(p, s, n);
 	p[n] = '\0';
 	return p;
 }
-
 /* growable string buffer */
 /**
  * @brief Initialise an empty string buffer.
@@ -97,6 +101,7 @@ void sb_reserve(StrBuf *b, size_t extra)
 {
 	if (b->len + extra + 1 > b->cap) {
 		size_t nc = b->cap * 2 + extra + 64;
+
 		b->data = (char *)xrealloc(b->data, nc);
 		b->cap = nc;
 	}
@@ -138,7 +143,6 @@ void sb_putc(StrBuf *b, char c)
 	b->data[b->len++] = c;
 	b->data[b->len] = '\0';
 }
-
 /* vector of strings (owned) */
 /**
  * @brief Initialise an empty string vector.
@@ -161,9 +165,11 @@ void sv_push(StrVec *v, char *s)
 {
 	if (v->len == v->cap) {
 		size_t nc = v->cap ? v->cap * 2 : 8;
+
 		v->items = (char **)xrealloc(v->items, nc * sizeof(char *));
 		v->cap = nc;
 	}
+
 	v->items[v->len++] = s;
 }
 /**
@@ -181,7 +187,6 @@ int sv_contains(StrVec *v, const char *s)
 			return 1;
 	return 0;
 }
-
 /**
  * @brief Compare two strings for equality.
  *

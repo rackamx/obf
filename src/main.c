@@ -18,13 +18,11 @@
  * Usage: cflatten [input.c] [-o output.c]
  * Only the standard C library is used (built as gnu11).
  */
+#include "flatten.h"
+#include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include "flatten.h"
-#include "util.h"
-
 /**
  * @brief Slurp a stream fully.
  *
@@ -35,14 +33,15 @@
 char *read_all(FILE *f)
 {
 	StrBuf b;
+
 	sb_init(&b);
 	char tmp[8192];
 	size_t n;
+
 	while ((n = fread(tmp, 1, sizeof(tmp), f)) > 0)
 		sb_putn(&b, tmp, n);
 	return b.data;
 }
-
 /**
  * @brief Flatten a C program to a dispatcher program.
  *
@@ -54,6 +53,7 @@ char *read_all(FILE *f)
 int main(int argc, char **argv)
 {
 	const char *infile = NULL, *outfile = NULL;
+
 	for (int i = 1; i < argc; i++) {
 		if ((streq(argv[i], "-o") || streq(argv[i], "--output")) &&
 		    i + 1 < argc) {
@@ -62,39 +62,50 @@ int main(int argc, char **argv)
 			printf("Usage: %s [input.c] [-o output.c]\n", argv[0]);
 			return 0;
 		} else if (argv[i][0] == '-' && outfile == NULL &&
+
 			   strlen(argv[i]) > 1) {
 			fprintf(stderr, "unknown option %s\n", argv[i]);
 			return 1;
 		} else if (!infile)
+
 			infile = argv[i];
 		else {
 			fprintf(stderr, "too many inputs\n");
 			return 1;
 		}
 	}
+
 	char *src = NULL;
+
 	if (infile) {
 		FILE *f = fopen(infile, "rb");
+
 		if (!f) {
 			perror("fopen input");
 			return 1;
 		}
+
 		src = read_all(f);
 		fclose(f);
 	} else {
 		src = read_all(stdin);
 	}
+
 	char *out = flatten_program(src);
+
 	if (outfile) {
 		FILE *f = fopen(outfile, "wb");
+
 		if (!f) {
 			perror("fopen output");
 			return 1;
 		}
+
 		fwrite(out, 1, strlen(out), f);
 		fclose(f);
 	} else {
 		fwrite(out, 1, strlen(out), stdout);
 	}
+
 	return 0;
 }
