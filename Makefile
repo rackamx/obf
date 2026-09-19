@@ -28,6 +28,21 @@ format:
 format-check:
 	clang-format --Wno-error=unknown -style=file --dry-run -Werror $(SRCS) $(HDRS)
 
+# Regenerate the clangd compilation database (committed for convenience;
+# rerun after moving the checkout since it embeds absolute paths).
+compile_commands.json: $(SRCS) $(HDRS) Makefile
+	@printf '[\n' > $@
+	@total=$(words $(SRCS)); n=1; \
+	for f in $(SRCS); do \
+		comma=,; [ $$n -eq $$total ] && comma=; o=$${f%.c}.o; \
+		printf '  {\n    "directory": "%s",\n' "$(CURDIR)" >> $@; \
+		printf '    "command": "%s %s -c -o %s %s",\n' \
+			"$(CC)" "$(CFLAGS)" "$$o" "$$f" >> $@; \
+		printf '    "file": "%s/%s"\n  }%s\n' "$(CURDIR)" "$$f" "$$comma" >> $@; \
+		n=$$((n + 1)); \
+	done
+	@printf ']\n' >> $@
+
 doc:
 	doxygen Doxyfile
 

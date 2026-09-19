@@ -1,0 +1,22 @@
+[
+  {
+    "directory": "/home/julien/obf",
+    "command": "gcc -std=gnu11 -Wall -Wextra -O2 -c -o src/main.o src/main.c",
+    "file": "/home/julien/obf/src/main.c"
+  },
+  {
+    "directory": "/home/julien/obf",
+    "command": "gcc -std=gnu11 -Wall -Wextra -O2 -c -o src/parser.o src/parser.c",
+    "file": "/home/julien/obf/src/parser.c"
+  },
+  {
+    "directory": "/home/julien/obf",
+    "command": "gcc -std=gnu11 -Wall -Wextra -O2 -c -o src/flatten.o src/flatten.c",
+    "file": "/home/julien/obf/src/flatten.c"
+  },
+  {
+    "directory": "/home/julien/obf",
+    "command": "gcc -std=gnu11 -Wall -Wextra -O2 -c -o src/util.o src/util.c",
+    "file": "/home/julien/obf/src/util.c"
+  }
+]
