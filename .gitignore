@@ -10,4 +10,6 @@ tests/*_o2_orig
 tests/*_o2_flat
 tests/argv_orig
 tests/argv_flat
+# generated flattened outputs (make test regenerates these into /tmp)
+tests/*_flat.c
 tests/*.txt
