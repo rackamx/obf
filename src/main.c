@@ -2,6 +2,7 @@
  * @file main.c
  * @brief Command-line driver for the cflatten obfuscator.
  */
+
 /* cflatten.c - Control-flow flattening obfuscator for C programs (C port).
  *
  * Takes a C program as input and generates a semantically equivalent C program
@@ -18,11 +19,13 @@
  * Usage: cflatten [input.c] [-o output.c]
  * Only the standard C library is used (built as gnu11).
  */
+
 #include "flatten.h"
 #include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 /**
  * @brief Slurp a stream fully.
  *

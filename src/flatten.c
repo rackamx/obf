@@ -2,6 +2,7 @@
  * @file flatten.c
  * @brief Control-flow flattening: hoisting, lowering, emission.
  */
+
 #include "flatten.h"
 #include "parser.h"
 #include "util.h"
@@ -9,7 +10,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 /* ---------------- hoister ---------------- */
+
 /**
  * @brief Single name renaming.
  */
@@ -65,6 +68,7 @@ void hoister_init(Hoister *h, StrVec *td)
 	h->counter = 0;
 	h->temp_counter = 0;
 	h->typedefs = td;
+
 	/* push base scope */
 	h->stack = (MapVec *)xmalloc(sizeof(MapVec));
 	h->stack[0].items = NULL;
@@ -325,6 +329,7 @@ char *strip_const_word(const char *s)
 	StrBuf b;
 
 	sb_init(&b);
+
 	/* tokenize by spaces? simpler: scan for word const with boundaries */
 	size_t n = strlen(s), i = 0;
 	int first = 1;
@@ -338,6 +343,7 @@ char *strip_const_word(const char *s)
 		}
 
 		/* copy one char? better copy token-wise: copy char */
+
 		/* collapse multiple spaces */
 		if (isspace((unsigned char)s[i])) {
 			if (!first && b.len && b.data[b.len - 1] != ' ')
@@ -376,6 +382,7 @@ int is_struct_type(const char *t)
 }
 
 /* c string literal length (bytes) +1 for NUL; input like "\"hi\"" */
+
 /**
  * @brief Measure a string literal with NUL in bytes.
  *
@@ -486,6 +493,7 @@ char *fix_array_suffix(const char *suffix, const char *init_text)
 	char *s = xstrdup(suffix ? suffix : "");
 
 	/* trim */
+
 	/* check contains [] ignoring spaces */
 	{
 		int has = 0;
@@ -523,6 +531,7 @@ char *fix_array_suffix(const char *suffix, const char *init_text)
 		res = replace_first_empty_brackets(s, sz);
 	} else if (it[0] == '{') {
 		/* count top-level commas via tokenize */
+
 		/* strip outer braces: find inner */
 		size_t il = strlen(it);
 		const char *inner = it + 1;
@@ -802,8 +811,10 @@ NodeVec hoist_node(Hoister *h, Node *nd)
 			if (init_rw) {
 				int is_arr =
 					d->suffix && strchr(d->suffix, '[');
+
 				/* note: use fixed suffix? recompute: if suffix
 				 * had '[' then array */
+
 				/* we freed fixed; need to know if array: check
 				 * original suffix */
 				if (is_arr) {
@@ -815,6 +826,7 @@ NodeVec hoist_node(Hoister *h, Node *nd)
 					StrBuf b;
 
 					sb_init(&b);
+
 					/* trim init */
 					const char *it = init_rw;
 
@@ -860,6 +872,7 @@ NodeVec hoist_node(Hoister *h, Node *nd)
 					    s[L - 1] == '}') {
 						char *inner =
 							xstrndup(s + 1, L - 2);
+
 						/* trim inner */
 						char *q = inner;
 
@@ -911,6 +924,7 @@ NodeVec hoist_node(Hoister *h, Node *nd)
 		sv_push(&h->hoisted, xstrdup(nd->decl_text));
 	} else if (tp == N_TYPEDEF) {
 		sv_push(&h->hoisted, xstrdup(nd->decl_text));
+
 		/* record name */
 		TokVec tv = tokenize(nd->decl_text);
 		const char *last = NULL;
@@ -1184,6 +1198,7 @@ NodeVec hoist_node(Hoister *h, Node *nd)
 
 			blk->stmts = r;
 			nv_push(&out, blk);
+
 			/* return two nodes: need to push both; out already has?
 			 * we pushed lb+blk, done */
 		} else if (r.len == 1) {
@@ -1214,6 +1229,7 @@ NodeVec hoist_node(Hoister *h, Node *nd)
 }
 
 /* ---------------- lowerer ---------------- */
+
 /**
  * @brief Basic block terminators.
  */
@@ -1350,6 +1366,7 @@ void lower_emit(Lowerer *L, const char *code)
 		code++;
 	if (!*code)
 		return;
+
 	/* trim trailing spaces */
 	size_t n = strlen(code);
 
@@ -1783,6 +1800,7 @@ void lower_stmt(Lowerer *L, Node *nd)
 
 				sb_init(&b);
 				sb_puts(&b, nd->init_expr);
+
 				/* ensure ; */
 				char *s = b.data;
 				size_t n = strlen(s);
@@ -1806,6 +1824,7 @@ void lower_stmt(Lowerer *L, Node *nd)
 
 		const char *cnd =
 			(nd->for_cond && nd->for_cond[0]) ? nd->for_cond : "1";
+
 		/* trim check empty */
 		{
 			const char *q = cnd;
@@ -1975,6 +1994,7 @@ void lower_stmt(Lowerer *L, Node *nd)
 }
 
 /* lower entry: returns entry id */
+
 /**
  * @brief Lower a body and finalize the block graph.
  *
@@ -2051,6 +2071,7 @@ int lower_run(Lowerer *L, Node *body)
 				    sizeof(int));
 	for (size_t i = 0; i < L->blocks.len; i++)
 		remap[i] = -1;
+
 	/* order: entry first, then sorted */
 	int *order = (int *)xmalloc((L->blocks.len + 1) * sizeof(int));
 	size_t on = 0;
@@ -2110,6 +2131,7 @@ int lower_run(Lowerer *L, Node *body)
 		int old = L->labels.items[i].bid;
 
 		if (old >= 0 && (size_t)old < on * 2) { /* remap if reachable */
+
 			/* find: old id -> new via remap (remap sized old len,
 			 * but old len lost; approximate: search order) */
 			int nn = -1;
@@ -2134,6 +2156,7 @@ int lower_run(Lowerer *L, Node *body)
 }
 
 /* ---------------- emission ---------------- */
+
 /**
  * @brief Pick a dispatcher name free of collisions.
  *
@@ -2278,6 +2301,7 @@ char *emit_function(Token *hdr, size_t hn, Hoister *h, Lowerer *L,
 }
 
 /* ---------------- flatten one function ---------------- */
+
 /**
  * @brief Parse, hoist, lower and emit one function.
  *
@@ -2324,6 +2348,7 @@ char *flatten_function(TokVec *header, TokVec *body, StrVec *global_td)
 	Hoister h;
 
 	hoister_init(&h, &local_td);
+
 	/* hoist: root stmts -> new list */
 	NodeVec newlist;
 
@@ -2346,10 +2371,12 @@ char *flatten_function(TokVec *header, TokVec *body, StrVec *global_td)
 	char *code = emit_function(header->items, header->len, &h, &L, state);
 
 	free(state);
+
 	/* update global typedefs with new ones */
 	for (size_t i = 0; i < local_td.len; i++)
 		if (!sv_contains(global_td, local_td.items[i]))
 			sv_push(global_td, xstrdup(local_td.items[i]));
+
 	/* leak most for brevity */
 	tv_free(&inner);
 	return code;
@@ -2431,6 +2458,7 @@ char *flatten_program(const char *src)
 
 					/* try flatten; on failure pass through
 					 */
+
 					/* no exceptions in C; assume success */
 					flat = flatten_function(
 						&it->header, &it->body, &gtd);

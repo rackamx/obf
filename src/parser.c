@@ -2,12 +2,14 @@
  * @file parser.c
  * @brief C statement-level parser: tokenizer and AST builder.
  */
+
 #include "parser.h"
 #include "util.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 /* ---------------- keywords ---------------- */
 static const char *KEYWORDS[] = {
 	"auto",	      "break",	   "case",	     "char",
@@ -31,6 +33,7 @@ static const char *TYPE_KWS[] = {
 	"_Bool",    "_Complex",	 "_Imaginary", "_Atomic",  "_Thread_local",
 	"_Alignas", "typeof",	 "__typeof__", "__typeof", "size_t",
 	"ssize_t",  "_Noreturn", NULL};
+
 /**
  * @brief Test whether a word is a C keyword.
  *
@@ -62,6 +65,7 @@ int is_type_kw(const char *w)
 }
 
 /* ---------------- tokens ---------------- */
+
 /**
  * @brief Initialise an empty token vector.
  *
@@ -110,6 +114,7 @@ void tv_free(TokVec *v)
 }
 
 /* strip comments -> spaces (same length, preserves strings) */
+
 /**
  * @brief Blank out comments, preserving strings and length.
  *
@@ -374,6 +379,7 @@ char *tokvec_to_str(TokVec *v)
 }
 
 /* ---------------- preproc split ---------------- */
+
 /**
  * @brief Append a source segment.
  *
@@ -409,6 +415,7 @@ SegVec split_preproc(const char *src)
 	v.items = NULL;
 	v.len = 0;
 	v.cap = 0;
+
 	/* split by lines */
 	StrBuf cur;
 
@@ -457,6 +464,7 @@ SegVec split_preproc(const char *src)
 }
 
 /* ---------------- toplevel ---------------- */
+
 /**
  * @brief Append a toplevel item.
  *
@@ -647,6 +655,7 @@ TLVect extract_toplevel(const char *code)
 				}
 
 				j = (j < n) ? j + 1 : n;
+
 				/* extend to ';' handling */
 				while (j < n &&
 				       !streq(toks.items[j].text, ";") &&
@@ -751,6 +760,7 @@ TLVect extract_toplevel(const char *code)
 }
 
 /* ---------------- AST ---------------- */
+
 /**
  * @brief Allocate a zeroed AST node.
  *
@@ -816,6 +826,7 @@ void dv_push(DeclVec *v, DeclEnt e)
 }
 
 /* parser */
+
 /**
  * @brief Look ahead without consuming input.
  *
@@ -983,6 +994,7 @@ TokVec capture_until_semi(Parser *p)
 }
 
 /* decl name helpers */
+
 /**
  * @brief Find the declared name in declarator tokens.
  *
@@ -1063,6 +1075,7 @@ char *extract_decl_suffix(Token *toks, size_t n, const char *name)
 {
 	if (!name)
 		return xstrdup("");
+
 	/* find idx from end with depth 0 */
 	int *dps = (int *)xmalloc(n * sizeof(int));
 	int *dbs = (int *)xmalloc(n * sizeof(int));
@@ -1117,6 +1130,7 @@ char *extract_decl_suffix(Token *toks, size_t n, const char *name)
 		while (k < n) {
 			if (!first || g.len)
 				sb_putc(&g, ' ');
+
 			/* avoid leading space */
 			sb_puts(&g, toks[k].text);
 			if (streq(toks[k].text, "["))
@@ -1363,6 +1377,7 @@ Node *parse_for(Parser *p)
 	tv_free(&a);
 	tv_free(&b);
 	tv_free(&c);
+
 	/* trim */
 	char *init_s = sa, *cond_s = sb2, *incr_s = sc;
 	char *init_decl = NULL, *init_expr = NULL;
@@ -1401,6 +1416,7 @@ Node *parse_for(Parser *p)
 
 	n->init_decl = init_decl;
 	n->init_expr = init_expr;
+
 	/* if init was decl, cond_s/incr still owned; if init expr, same */
 	if (!init_decl && !init_expr) {
 		free(init_s);
@@ -1409,6 +1425,7 @@ Node *parse_for(Parser *p)
 	n->for_cond = cond_s;
 	n->incr = incr_s;
 	n->for_body = body;
+
 	/* if init empty and we freed? careful: init_s freed only when empty */
 	return n;
 }
@@ -1529,6 +1546,7 @@ Node *parse_default(Parser *p)
 }
 
 /* declaration parsing */
+
 /**
  * @brief Parse a declaration up to ';'.
  *
@@ -1585,7 +1603,9 @@ Node *parse_declaration(Parser *p)
 	}
 
 	/* split by top-level commas */
+
 	/* build chunks as TokVec array */
+
 	/**
 	 * @brief Declarator chunk (function-local).
 	 */
@@ -1779,7 +1799,9 @@ Node *parse_declaration(Parser *p)
 	nd->type_str = type_str;
 	nd->decls.items = NULL;
 	nd->decls.len = nd->decls.cap = 0;
+
 	/* first remainder */
+
 	/* collect declarator token lists */
 	typedef struct {
 		Token *t;
@@ -1987,6 +2009,7 @@ Node *parse_statement(Parser *p)
 		char *e = tokvec_to_str(&v);
 
 		tv_free(&v);
+
 		/* trim */
 		Node *n = node_new(N_RETURN);
 
@@ -2086,6 +2109,7 @@ Node *parse_statement(Parser *p)
 	char *s = tokvec_to_str(&v);
 
 	tv_free(&v);
+
 	/* trim check empty */
 	{
 		int blank = 1;

@@ -2,12 +2,15 @@
  * @file util.c
  * @brief Allocation helpers, string buffers and vectors.
  */
+
 #include "util.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 /* ---------------- utilities ---------------- */
+
 /**
  * @brief Allocate memory, aborting on failure.
  *
@@ -83,6 +86,7 @@ char *xstrndup(const char *s, size_t n)
 }
 
 /* growable string buffer */
+
 /**
  * @brief Initialise an empty string buffer.
  *
@@ -153,6 +157,7 @@ void sb_putc(StrBuf *b, char c)
 }
 
 /* vector of strings (owned) */
+
 /**
  * @brief Initialise an empty string vector.
  *

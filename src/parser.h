@@ -2,11 +2,15 @@
  * @file parser.h
  * @brief C statement-level parser: tokenizer and AST builder.
  */
+
 /* C statement-level parser: tokenizer, toplevel splitter and AST builder. */
+
 #ifndef CFLATTEN_PARSER_H
 #define CFLATTEN_PARSER_H
+
 #include "util.h"
 #include <stddef.h>
+
 /**
  * @brief Token kinds.
  */
@@ -146,6 +150,7 @@ typedef struct {
 } DeclVec;
 
 typedef struct Node Node;
+
 /**
  * @brief AST node vector.
  */
@@ -209,4 +214,5 @@ int is_keyword(const char *w);
 int is_ident_start(char c);
 
 int is_ident_char(char c);
+
 #endif /* CFLATTEN_PARSER_H */

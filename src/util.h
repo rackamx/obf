@@ -2,10 +2,14 @@
  * @file util.h
  * @brief Allocation helpers, string buffers and vectors.
  */
+
 /* Shared utilities: allocation helpers, string buffers and vectors. */
+
 #ifndef CFLATTEN_UTIL_H
 #define CFLATTEN_UTIL_H
+
 #include <stddef.h>
+
 void *xmalloc(size_t n);
 
 void *xrealloc(void *p, size_t n);
@@ -34,6 +38,7 @@ void sb_puts(StrBuf *b, const char *s);
 void sb_putc(StrBuf *b, char c);
 
 /* vector of strings (owned) */
+
 /**
  * @brief Growable vector of owned strings.
  */
@@ -50,4 +55,5 @@ void sv_push(StrVec *v, char *s);
 int sv_contains(StrVec *v, const char *s);
 
 int streq(const char *a, const char *b);
+
 #endif /* CFLATTEN_UTIL_H */
