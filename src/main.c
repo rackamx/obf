@@ -20,8 +20,9 @@
  * Only the standard C library is used (built as gnu11).
  */
 
-#include "flatten.h"
-#include "util.h"
+#include "cff/flatten.h"
+#include "utils/strbuf.h"
+#include "utils/util.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,6 +42,7 @@ char *read_all(FILE *f)
 	char tmp[8192];
 	size_t n;
 
+	/* Short reads just mean "try again": loop until fread says zero. */
 	while ((n = fread(tmp, 1, sizeof(tmp), f)) > 0)
 		sb_putn(&b, tmp, n);
 	return b.data;
@@ -68,6 +70,8 @@ int main(int argc, char **argv)
 		} else if (argv[i][0] == '-' && outfile == NULL &&
 
 			   strlen(argv[i]) > 1) {
+			/* A lone "-" means stdin; anything longer is an
+			 * unknown flag. */
 			fprintf(stderr, "unknown option %s\n", argv[i]);
 			return 1;
 		} else if (!infile)

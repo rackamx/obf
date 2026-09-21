@@ -1,9 +1,18 @@
 CC      = gcc
-CFLAGS  = -std=gnu11 -Wall -Wextra -O2
+CFLAGS  = -std=gnu11 -Wall -Wextra -O2 -Isrc
 TARGET  = cflatten
-SRCS    = src/main.c src/parser.c src/flatten.c src/util.c
+SRCS    = src/main.c \
+          src/parse/token.c src/parse/segment.c src/parse/toplevel.c \
+          src/parse/ast.c src/parse/parser.c \
+          src/cff/hoister.c src/cff/lowerer.c src/cff/emit.c \
+          src/cff/flatten.c \
+          src/utils/util.c src/utils/strbuf.c src/utils/strvec.c
 OBJS    = $(SRCS:.c=.o)
-HDRS    = src/util.h src/parser.h src/flatten.h
+HDRS    = src/parse/token.h src/parse/segment.h src/parse/toplevel.h \
+          src/parse/ast.h src/parse/parser.h \
+          src/cff/hoister.h src/cff/lowerer.h src/cff/emit.h \
+          src/cff/flatten.h \
+          src/utils/util.h src/utils/strbuf.h src/utils/strvec.h
 
 TESTS   = test1 test2 test3 test4 test5 test_static
 
@@ -28,6 +37,11 @@ format:
 
 format-check:
 	clang-format --Wno-error=unknown -style=file --dry-run -Werror $(SRCS) $(HDRS)
+
+check-docs:
+	python3 scripts/check-docs.py $(SRCS) $(HDRS)
+
+check: format-check check-docs test
 
 # Regenerate the clangd compilation database (committed for convenience;
 # rerun after moving the checkout since it embeds absolute paths).
@@ -72,4 +86,4 @@ test: all
 		echo "test_argv MISMATCH"; exit 1; \
 	fi
 
-.PHONY: all clean format format-check test doc
+.PHONY: all clean format format-check test doc check-docs check
